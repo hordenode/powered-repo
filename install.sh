@@ -24,7 +24,7 @@ if [ -z "$LATEST_TAG" ]; then
 fi
 
 VERSION="${LATEST_TAG#v}"
-DMG_FILE_NAME="moon-${VERSION}.dmg"
+DMG_FILE_NAME="powered-${VERSION}.dmg"
 DMG_URL="https://github.com/$REPO/releases/download/$LATEST_TAG/$DMG_FILE_NAME"
 
 echo -e "${PURPLE}[Powered]${WHITE} Downloading $DMG_FILE_NAME...${RESET}"
