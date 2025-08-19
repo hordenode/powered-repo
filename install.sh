@@ -4,8 +4,7 @@
 REPO="hordenode/powered-repo"
 APP_NAME="Powered.app"
 DEST_DIR="/Applications"
-TMP_DIR="/tmp/powered.dmg"
-DMG_NAME="powered-latest.dmg"
+TMP_DIR="/tmp/powered_installer"
 # ===========================
 
 PURPLE="\033[1;35m"
@@ -16,22 +15,25 @@ mkdir -p "$TMP_DIR"
 cd "$TMP_DIR" || exit 1
 
 echo -e "${PURPLE}[Powered]${WHITE} Checking latest release...${RESET}"
-LATEST_TAG=$(curl -s "https://api.github.com/repos/$REPO/tags" | grep 'name' | head -n 1 | cut -d '"' -f 4)
 
-if [ -z "$LATEST_TAG" ]; then
-    echo -e "${PURPLE}[Powered]${WHITE} Failed to fetch latest release tag.${RESET}"
+# Get the latest release info from GitHub API
+API_JSON=$(curl -s "https://api.github.com/repos/$REPO/releases/latest")
+
+# Extract the DMG asset URL containing 'powered' (case-insensitive)
+DMG_URL=$(echo "$API_JSON" | grep -i '.dmg' | grep -i 'powered' | head -n 1 | cut -d '"' -f 4)
+
+if [ -z "$DMG_URL" ]; then
+    echo -e "${PURPLE}[Powered]${WHITE} Failed to find a DMG with 'powered' in the release.${RESET}"
     exit 1
 fi
 
-VERSION="${LATEST_TAG#v}"
-DMG_FILE_NAME="powered-${VERSION}.dmg"
-DMG_URL="https://github.com/$REPO/releases/download/$LATEST_TAG/$DMG_FILE_NAME"
+DMG_FILE_NAME=$(basename "$DMG_URL")
 
 echo -e "${PURPLE}[Powered]${WHITE} Downloading $DMG_FILE_NAME...${RESET}"
-curl -L -o "$DMG_NAME" "$DMG_URL"
+curl -L -o "$DMG_FILE_NAME" "$DMG_URL"
 
 echo -e "${PURPLE}[Powered]${WHITE} Mounting DMG...${RESET}"
-MOUNT_POINT=$(hdiutil attach "$DMG_NAME" | grep Volumes | awk '{print $3}')
+MOUNT_POINT=$(hdiutil attach "$DMG_FILE_NAME" | grep Volumes | awk '{print $3}')
 
 if [ -z "$MOUNT_POINT" ]; then
     echo -e "${PURPLE}[Powered]${WHITE} Failed to mount DMG.${RESET}"
