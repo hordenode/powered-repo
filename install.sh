@@ -19,8 +19,8 @@ echo -e "${PURPLE}[Powered]${WHITE} Checking latest release...${RESET}"
 # Get the latest release info from GitHub API
 API_JSON=$(curl -s "https://api.github.com/repos/$REPO/releases/latest")
 
-# Extract the DMG asset URL containing 'powered' (case-insensitive)
-DMG_URL=$(echo "$API_JSON" | grep -i '.dmg' | grep -i 'powered' | head -n 1 | cut -d '"' -f 4)
+# Extract DMG browser_download_url containing 'powered' (case-insensitive)
+DMG_URL=$(echo "$API_JSON" | grep -i 'browser_download_url' | grep -i 'powered.*\.dmg' | cut -d '"' -f 4 | head -n 1)
 
 if [ -z "$DMG_URL" ]; then
     echo -e "${PURPLE}[Powered]${WHITE} Failed to find a DMG with 'powered' in the release.${RESET}"
